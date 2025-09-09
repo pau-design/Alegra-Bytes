@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <meta charset="utf-8">
+    <title>Alegra Bytes</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png">
+    <link rel="shortcut icon" href="./assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #114757 0%, #0C0C0C 100%);
+            font-family: 'Pixelify Sans', Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+        
+        body.game-active {
+            background: #083748;
+        }
+        
+        /* Animación de píxeles */
+        .pixel-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .pixel {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: pixelFade 3s ease-in-out infinite;
+        }
+        
+        .pixel:nth-child(odd) {
+            background: rgba(0, 212, 170, 0.2);
+            animation-delay: 0.5s;
+        }
+        
+        .pixel:nth-child(3n) {
+            background: rgba(255, 255, 255, 0.05);
+            animation-delay: 1s;
+        }
+        
+        .pixel:nth-child(4n) {
+            background: rgba(0, 168, 204, 0.15);
+            animation-delay: 1.5s;
+        }
+        
+        .pixel:nth-child(5n) {
+            background: rgba(255, 255, 255, 0.08);
+            animation-delay: 2s;
+        }
+        
+        @keyframes pixelFade {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Contenido principal */
+        .splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+        
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+        
+        .play-button {
+            background: linear-gradient(45deg, #00d4aa, #00a8cc);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Pixelify Sans', Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+        }
+        
+        .play-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 212, 170, 0.5);
+            background: linear-gradient(45deg, #00a8cc, #00d4aa);
+        }
+        
+        .play-button:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Pantalla de selección de personajes */
+        .character-selection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .character-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+        
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 25px;
+            max-width: 750px;
+            width: 100%;
+        }
+        
+        .character-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+        }
+        
+        .character-card:hover {
+            border-color: rgba(0, 212, 170, 0.8);
+            background: rgba(0, 212, 170, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+        
+        .character-card.selected {
+            border-color: #00d4aa;
+            background: rgba(0, 212, 170, 0.2);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+        }
+        
+        .character-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+        
+        .character-name {
+            font-size: 1.1rem;
+            color: #ffffff;
+            text-align: center;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .start-game-btn {
+            background: linear-gradient(45deg, #00d4aa, #00a8cc);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Pixelify Sans', Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+            margin-top: 30px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .start-game-btn.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .start-game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 212, 170, 0.5);
+            background: linear-gradient(45deg, #00a8cc, #00d4aa);
+        }
+        
+        /* Canvas del juego (oculto inicialmente) */
+        .game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: none;
+        }
+        
+        /* Pantalla de Game Over */
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #08283A;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            overflow: hidden;
+        }
+        
+        .game-over-title {
+            font-family: 'Pixelify Sans', Arial, sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: none;
+            animation: none;
+        }
+        
+        .game-over-container {
+            background: transparent;
+            border: none;
+            padding: 3rem;
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .game-over-message {
+            font-family: 'Play', Arial, sans-serif;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .game-over-message .highlight {
+            font-weight: 700;
+            color: #00d4aa;
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+        
+        .game-over-button {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00a8cc;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Play', Arial, sans-serif;
+            text-transform: none;
+            letter-spacing: normal;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        
+        .game-over-button:hover {
+            background: rgba(0, 168, 204, 0.2);
+            border-color: #00d4aa;
+        }
+        
+        .game-over-button:active {
+            transform: none;
+        }
+        
+        .game-over-score {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00d4aa;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            color: #ffffff;
+            font-family: 'Play', Arial, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-over-score .score-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #00d4aa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .game-over-score .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        /* Partículas animadas como en la pantalla de inicio */
+        .floating-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            animation: pixelFade 4s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(odd) {
+            background: rgba(0, 212, 170, 0.08);
+            animation-delay: 0.5s;
+        }
+        
+        .particle:nth-child(3n) {
+            background: rgba(255, 255, 255, 0.03);
+            animation-delay: 1s;
+        }
+        
+        .particle:nth-child(4n) {
+            background: rgba(0, 168, 204, 0.06);
+            animation-delay: 1.5s;
+        }
+        
+        .particle:nth-child(5n) {
+            background: rgba(255, 255, 255, 0.04);
+            animation-delay: 2s;
+        }
+        
+        @keyframes pixelFade {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        canvas {
+            background: #000;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: block;
+            max-width: 100vw;
+            max-height: 100vh;
+            width: auto;
+            height: auto;
+        }
+    </style>
+	</head>
+	<body>
+    <!-- Pantalla de inicio -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="pixel-bg" id="pixelBg"></div>
+        <img src="./assets/logo-alegra.png" alt="Alegra Logo" class="logo">
+        <h1 class="title">Alegra Bytes</h1>
+        <button class="play-button" onclick="showCharacterSelection()">Play</button>
+    </div>
+    
+    <!-- Pantalla de selección de personajes -->
+    <div class="character-selection" id="characterSelection">
+        <div class="pixel-bg" id="pixelBg2"></div>
+        <h2 class="character-title">¿Con quién quieres jugar hoy?</h2>
+        <div class="character-grid">
+            <div class="character-card" data-character="product">
+                <img src="./assets/product.png" alt="Product" class="character-icon">
+                <span class="character-name">Product</span>
+            </div>
+            <div class="character-card" data-character="ce">
+                <img src="./assets/ce.png" alt="CE" class="character-icon">
+                <span class="character-name">CE</span>
+            </div>
+            <div class="character-card" data-character="people">
+                <img src="./assets/people.png" alt="People" class="character-icon">
+                <span class="character-name">People</span>
+            </div>
+            <div class="character-card" data-character="finance">
+                <img src="./assets/finance.png" alt="Finance" class="character-icon">
+                <span class="character-name">Finance</span>
+            </div>
+            <div class="character-card" data-character="sales">
+                <img src="./assets/sales.png" alt="Sales" class="character-icon">
+                <span class="character-name">Sales</span>
+            </div>
+            <div class="character-card" data-character="data">
+                <img src="./assets/data.png" alt="Data" class="character-icon">
+                <span class="character-name">Data</span>
+            </div>
+            <div class="character-card" data-character="growth">
+                <img src="./assets/growth.png" alt="Growth" class="character-icon">
+                <span class="character-name">Growth</span>
+            </div>
+            <div class="character-card" data-character="devs">
+                <img src="./assets/devs.png" alt="Devs" class="character-icon">
+                <span class="character-name">Devs</span>
+            </div>
+            <div class="character-card" data-character="talent">
+                <img src="./assets/talent.png" alt="Talent" class="character-icon">
+                <span class="character-name">Talent</span>
+            </div>
+        </div>
+        <button class="start-game-btn" id="startGameBtn" onclick="startGame()">Iniciar Juego</button>
+    </div>
+    
+    <!-- Canvas del juego -->
+    <div class="game-canvas" id="gameCanvas">
+        <canvas id="canvas" width="1280" height="720"></canvas>
+    </div>
+    
+    <!-- Pantalla de Game Over -->
+    <div class="game-over-screen" id="gameOverScreen">
+        <div class="floating-particles" id="floatingParticles"></div>
+        <h1 class="game-over-title">Game over...</h1>
+        <div class="game-over-container">
+            <div class="game-over-message">
+                no es una derrota, es el inicio de un nuevo intento.<br>
+                Nosotros sabemos que cada caída enseña, que<br>
+                levantarse con <span class="highlight">humildad</span> es lo que nos hace<br>
+                avanzar.<br>
+                El <span class="highlight">cambio</span> es parte del juego, y con cada error<br>
+                aprendemos, probamos y mejoramos. Buscamos<br>
+                siempre la manera más simple y <span class="highlight">honesta</span> de volver<br>
+                más fuertes, porque la verdadera victoria está en<br>
+                no rendirse.
+            </div>
+            <button class="game-over-button" onclick="restartGame()">+ Vuelve a intentarlo y sigue creciendo</button>
+        </div>
+        <div class="game-over-score">
+            <span class="score-label">Puntuación Final</span>
+            <span class="score-value" id="finalScore">0</span>
+        </div>
+    </div>
+			
+    <script>
+        let selectedCharacter = 'product'; // Personaje por defecto
+        
+        // Función para crear píxeles animados
+        function createPixelAnimation(containerId) {
+            const pixelBg = document.getElementById(containerId);
+            const numPixels = 150; // Número de píxeles
+            
+            for (let i = 0; i < numPixels; i++) {
+                const pixel = document.createElement('div');
+                pixel.className = 'pixel';
+                
+                // Posición aleatoria
+                pixel.style.left = Math.random() * 100 + '%';
+                pixel.style.top = Math.random() * 100 + '%';
+                
+                // Delay aleatorio para la animación
+                pixel.style.animationDelay = Math.random() * 3 + 's';
+                
+                // Duración aleatoria
+                pixel.style.animationDuration = (2 + Math.random() * 2) + 's';
+                
+                pixelBg.appendChild(pixel);
+            }
+        }
+        
+        // Función para mostrar la selección de personajes
+        function showCharacterSelection() {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('characterSelection').style.display = 'flex';
+            createPixelAnimation('pixelBg2');
+            
+            // Agregar event listeners a las cards
+            const characterCards = document.querySelectorAll('.character-card');
+            characterCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remover selección anterior
+                    characterCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // Seleccionar nueva card
+                    this.classList.add('selected');
+                    selectedCharacter = this.getAttribute('data-character');
+                    window.selectedCharacter = selectedCharacter; // Hacer disponible globalmente
+                    
+                    // Activar botón de start
+                    document.getElementById('startGameBtn').classList.add('active');
+                });
+            });
+        }
+        
+
+        // Función para iniciar el juego directamente (sin selección de personajes)
+        function startGameDirectly() {
+            // Detener cualquier juego anterior para evitar múltiples bucles
+            if (typeof game !== 'undefined' && game.stop) {
+                game.stop();
+                console.log('Deteniendo juego anterior');
+            }
+            
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.body.classList.add('game-active');
+            
+            // Ajustar el canvas al tamaño del navegador
+            function resizeCanvas() {
+                const canvas = document.getElementById('canvas');
+                const maxWidth = window.innerWidth;
+                const maxHeight = window.innerHeight;
+                
+                // Calcular la escala manteniendo la proporción
+                const scaleX = maxWidth / 1280;
+                const scaleY = maxHeight / 720;
+                const scale = Math.min(scaleX, scaleY);
+                
+                // Aplicar el tamaño escalado
+                canvas.style.width = (1280 * scale) + 'px';
+                canvas.style.height = (720 * scale) + 'px';
+            }
+            
+            // Ajustar al cargar y al redimensionar
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Función para inicializar el juego con retry
+            function initGame() {
+                if (typeof game !== 'undefined') {
+                    console.log('Inicializando juego...');
+                    
+                    // Inicializar el motor del juego
+                    game.init();
+                    console.log('Motor inicializado');
+                    
+                    // Ir directamente al stage 1 (juego principal)
+                    setTimeout(() => {
+                        console.log('Cambiando al stage 1...');
+                        game.setStage(1);
+                        console.log('Juego iniciado');
+                    }, 100);
+                    
+                } else {
+                    console.log('Game no disponible, reintentando en 100ms...');
+                    setTimeout(initGame, 100);
+                }
+            }
+            
+            // Inicializar el juego
+            initGame();
+        }
+
+        // Función para iniciar el juego
+        function startGame() {
+            // Detener cualquier juego anterior para evitar múltiples bucles
+            if (typeof game !== 'undefined' && game.stop) {
+                game.stop();
+                console.log('Deteniendo juego anterior');
+            }
+            
+            document.getElementById('characterSelection').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.body.classList.add('game-active');
+            
+            // Ajustar el canvas al tamaño del navegador
+            function resizeCanvas() {
+                const canvas = document.getElementById('canvas');
+                const maxWidth = window.innerWidth;
+                const maxHeight = window.innerHeight;
+                
+                // Calcular la escala manteniendo la proporción
+                const scaleX = maxWidth / 1280;
+                const scaleY = maxHeight / 720;
+                const scale = Math.min(scaleX, scaleY);
+                
+                // Aplicar el tamaño escalado
+                canvas.style.width = (1280 * scale) + 'px';
+                canvas.style.height = (720 * scale) + 'px';
+            }
+            
+            // Ajustar al cargar y al redimensionar
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Función para verificar que todas las imágenes estén cargadas
+            function checkImagesLoaded() {
+                var allImages = [
+                    window.starWhiteImg, window.symbolImg,
+                    window.ghostImages['#F00'], window.ghostImages['#F93'], window.ghostImages['#0CF'], window.ghostImages['#F9C']
+                ];
+                
+                // Agregar imágenes de personajes
+                var characterNames = ['product', 'ce', 'people', 'finance', 'sales', 'data', 'growth', 'devs', 'talent'];
+                characterNames.forEach(function(name) {
+                    if (window.characterImages && window.characterImages[name]) {
+                        allImages.push(window.characterImages[name]);
+                    }
+                });
+                
+                return allImages.every(function(img) {
+                    return img && img.complete && img.naturalWidth > 0;
+                });
+            }
+            
+            // Función para inicializar el juego con retry
+            function initGame() {
+                if (typeof game !== 'undefined') {
+                    // Verificar que las imágenes estén cargadas
+                    if (!checkImagesLoaded()) {
+                        console.log('Esperando a que las imágenes se carguen...');
+                        setTimeout(initGame, 100);
+                        return;
+                    }
+                    
+                    console.log('Inicializando juego con personaje:', selectedCharacter);
+                    
+                    // Inicializar el motor del juego
+                    game.init();
+                    console.log('Motor inicializado');
+                    
+                    // Esperar un momento y luego ir al stage 1
+                    setTimeout(() => {
+                        console.log('Cambiando al stage 1...');
+                        game.setStage(1);
+                        console.log('Juego iniciado con personaje:', selectedCharacter);
+                    }, 100);
+                    
+                } else {
+                    console.log('Game no disponible, reintentando en 100ms...');
+                    setTimeout(initGame, 100);
+                }
+            }
+            
+            // Inicializar el juego
+            initGame();
+        }
+        
+        // Función para crear partículas sutiles y pocas
+        function createFloatingParticles() {
+            const particlesContainer = document.getElementById('floatingParticles');
+            const numParticles = 30; // Pocas partículas sutiles
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Posición aleatoria
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                
+                // Delay aleatorio para la animación
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                
+                // Duración aleatoria
+                particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Función para mostrar la pantalla de game over
+        function showGameOverScreen() {
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            
+            // Actualizar puntuación final
+            const finalScoreElement = document.getElementById('finalScore');
+            if (typeof _SCORE !== 'undefined') {
+                finalScoreElement.textContent = _SCORE;
+            }
+            
+            // Crear partículas flotantes
+            createFloatingParticles();
+        }
+        
+        // Función para reiniciar el juego
+        function restartGame() {
+            // Ocultar pantalla de game over
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Detener el juego actual para evitar múltiples bucles de animación
+            if (typeof game !== 'undefined' && game.stop) {
+                game.stop();
+                console.log('Juego detenido');
+            }
+            
+            // Resetear variables del juego
+            if (typeof _SCORE !== 'undefined') _SCORE = 0;
+            if (typeof _LIFE !== 'undefined') _LIFE = 3;
+            if (typeof _LIVES !== 'undefined') _LIVES = 3;
+            if (typeof _LEADS !== 'undefined') _LEADS = 0;
+            if (typeof _NUEVOS_LOGOS !== 'undefined') _NUEVOS_LOGOS = 0;
+            if (typeof _COUNTERS !== 'undefined') _COUNTERS = 0;
+            if (typeof _LEADS_ROBADOS !== 'undefined') _LEADS_ROBADOS = 0;
+            if (typeof _LOGOS_ROBADOS !== 'undefined') _LOGOS_ROBADOS = 0;
+            if (typeof _CONTADORES_ROBADOS !== 'undefined') _CONTADORES_ROBADOS = 0;
+            if (typeof _LAST_AUTO_ROB !== 'undefined') _LAST_AUTO_ROB = 0;
+            if (typeof _PROJECTILES !== 'undefined') _PROJECTILES = [];
+            if (typeof _FLOATING_TEXTS !== 'undefined') _FLOATING_TEXTS = [];
+            if (typeof _BOMBS !== 'undefined') _BOMBS = [];
+            if (typeof _LAST_BOMB !== 'undefined') _LAST_BOMB = 0;
+            if (typeof _BOMBS_AVAILABLE !== 'undefined') _BOMBS_AVAILABLE = 3;
+            
+            // Limpiar completamente el canvas
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Limpiar cache del mapa si existe
+            if (typeof game !== 'undefined' && game.maps) {
+                game.maps.forEach(function(map) {
+                    if (map && map.imageData) {
+                        map.imageData = null;
+                    }
+                });
+            }
+            
+            // Ocultar canvas del juego
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.body.classList.remove('game-active');
+            
+            // Mostrar pantalla de selección de personajes
+            document.getElementById('characterSelection').style.display = 'flex';
+            createPixelAnimation('pixelBg2');
+            
+            // Resetear selección de personaje
+            selectedCharacter = 'product'; // Personaje por defecto
+            window.selectedCharacter = selectedCharacter;
+            
+            // Desactivar botón de start inicialmente
+            document.getElementById('startGameBtn').classList.remove('active');
+            
+            // Reconfigurar event listeners para las cards de personajes
+            const characterCards = document.querySelectorAll('.character-card');
+            characterCards.forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Seleccionar el personaje por defecto
+            const defaultCard = document.querySelector('[data-character="product"]');
+            if (defaultCard) {
+                defaultCard.classList.add('selected');
+                document.getElementById('startGameBtn').classList.add('active');
+            }
+        }
+        
+        // Hacer las funciones disponibles globalmente
+        window.showGameOverScreen = showGameOverScreen;
+        window.restartGame = restartGame;
+        
+        // Inicializar la animación de píxeles cuando se carga la página
+        window.addEventListener('load', function() {
+            createPixelAnimation('pixelBg');
+        });
+    </script>
+		<script src="./static/script/game.js"></script>
+		<script src="./static/script/index.js"></script>
+	</body>
+</html>
