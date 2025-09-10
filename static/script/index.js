@@ -513,7 +513,7 @@
 	_LIFE = 3,				//玩家生命值
 	_LIVES = 3,				//Número de vidas para el panel
 	_SCORE = 0,				//玩家得分
-	_PROJECTILES = [],		//数组存储所有子弹
+	_PROJECTILES = [],		//数组存储所有Opportunity glow
 	_LAST_SHOT = 0,			//上次射击时间
 	_LEADS = 0,				//Contador de estrellas blancas (leads)
 	_NUEVOS_LOGOS = 0,		//Contador de estrellas amarillas (nuevos logos)
@@ -524,10 +524,10 @@
 	_CONTADORES_ROBADOS = 0,	//Contador de contadores robados por fantasmas
 	_LAST_AUTO_ROB = 0,		//Último robo automático de leads
 	_AUTO_ROB_INTERVAL = 15000,	//Intervalo de robo automático (15 segundos)
-	_BOMBS = [],			//Array para almacenar bombas
+	_BOMBS = [],			//Array para almacenar Give it a shot
 	_LAST_BOMB = 0,			//Último lanzamiento de bomba
-	_BOMB_COOLDOWN = 2000,	//Cooldown de bombas (2 segundos)
-	_BOMBS_AVAILABLE = 3;	//Número de bombas disponibles (solo para Product y Sales)
+	_BOMB_COOLDOWN = 2000,	//Cooldown de Give it a shot (2 segundos)
+	_BOMBS_AVAILABLE = 3;	//Número de Give it a shot disponibles (solo para Product y Sales)
 
 	var game = new Game('canvas');
 	window.game = game; // Hacer el objeto game disponible globalmente
@@ -562,7 +562,7 @@
 		window.characterImages[name] = createImage('./assets/' + name + '.png', name + '.png');
 	});
 	
-	// Cargar imágenes de bombas para Product y Sales
+	// Cargar imágenes de Give it a shot para Product y Sales
 	window.bombImages = {
 		'product': createImage('./assets/bomba-product.png', 'bomba-product.png'),
 		'sales': createImage('./assets/bomba-sales.png', 'bomba-sales.png')
@@ -581,9 +581,9 @@
 		});
 	}
 	
-	// Función para crear bombas
+	// Función para crear Give it a shot
 	function createBomb(x, y, character) {
-		// Verificar si hay bombas disponibles
+		// Verificar si hay Give it a shot disponibles
 		if(_BOMBS_AVAILABLE > 0) {
 			_BOMBS.push({
 				x: x,
@@ -593,11 +593,11 @@
 				active: true,
 				exploded: false
 			});
-			_BOMBS_AVAILABLE--; // Descontar bomba disponible
+			_BOMBS_AVAILABLE--; // Descontar Give it a shot disponible
 		}
 	}
 	
-	// Función para explotar bomba
+	// Función para explotar Give it a shot
 	function explodeBomb(bomb, items, map) {
 		if(bomb.exploded) return;
 		bomb.exploded = true;
@@ -994,7 +994,7 @@
 					context.fillText('Movimiento: WSAD o Flechas', 36, 206);
 					
 					// Controles de acción
-					context.fillText('Proyectiles: Espacio', 36, 226);
+					context.fillText('Opportunity glow: Espacio', 36, 226);
 					
 					// Mostrar control de bomba solo para Product y Sales
 					var character = window.selectedCharacter || 'product';
@@ -1007,7 +1007,7 @@
 						// Destacar el control de bomba con color especial
 						context.fillStyle = '#FFD700'; // Dorado para destacar
 						context.font = 'bold 14px Arial';
-						context.fillText('Bomba: B', 36, 266);
+						context.fillText('Give it a shot: B', 36, 266);
 						
 						// Volver al estilo normal para pausar
 						context.fillStyle = '#FFF';
@@ -1051,15 +1051,15 @@
 						context.restore();
 					}
 					
-					// Mostrar bombas solo para Product y Sales
+					// Mostrar Give it a shot solo para Product y Sales
 					var character = window.selectedCharacter || 'product';
 					if(character === 'product' || character === 'sales') {
-						// Título de bombas
+						// Título de Give it a shot
 						context.font = '16px Arial';
 						context.fillStyle = '#FFF';
-						context.fillText('Bombas:', 36, 510);
+						context.fillText('Give it a shot:', 36, 510);
 						
-						// Dibujar bombas disponibles
+						// Dibujar Give it a shot disponibles
 						for(var i = 0; i < _BOMBS_AVAILABLE; i++) {
 							var bombX = 36 + (i * 50);
 							var bombY = 530;
@@ -1069,7 +1069,7 @@
 							context.imageSmoothingEnabled = true;
 							context.imageSmoothingQuality = 'high';
 							
-							// Usar la imagen de bomba correspondiente al personaje
+							// Usar la imagen de Give it a shot correspondiente al personaje
 							var bombImg = bombImages[character];
 							if(bombImg && bombImg.complete) {
 								context.drawImage(bombImg, bombX, bombY, bombSize, bombSize);
@@ -1354,7 +1354,7 @@
 						return text.life > 0;
 					});
 					
-					// 更新炸弹
+					// 更新Give it a shot
 					for(var i = _BOMBS.length - 1; i >= 0; i--) {
 						var bomb = _BOMBS[i];
 						if(!bomb.active) {
@@ -1362,16 +1362,16 @@
 							continue;
 						}
 						
-						// 更新炸弹生命周期
+						// 更新Give it a shot生命周期
 						bomb.life--;
 						if(bomb.life <= 0) {
-							// 炸弹爆炸
+							// Give it a shot爆炸
 							explodeBomb(bomb, items, map);
 							bomb.active = false;
 						}
 					}
 					
-					// 更新子弹
+					// 更新Opportunity glow
 					for(var i = _PROJECTILES.length - 1; i >= 0; i--) {
 						var projectile = _PROJECTILES[i];
 						if(!projectile.active) {
@@ -1379,25 +1379,25 @@
 							continue;
 						}
 						
-						// 移动子弹
+						// 移动Opportunity glow
 						projectile.x += projectile.speed * _COS[projectile.orientation];
 						projectile.y += projectile.speed * _SIN[projectile.orientation];
 						
-						// 检查子弹生命周期
+						// 检查Opportunity glow生命周期
 						projectile.life--;
 						if(projectile.life <= 0) {
 							projectile.active = false;
 							continue;
 						}
 						
-						// 检查子弹与墙壁的碰撞
+						// 检查Opportunity glow与墙壁的碰撞
 						var bulletCoord = map.position2coord(projectile.x, projectile.y);
 						if(map.get(bulletCoord.x, bulletCoord.y) == 1) {
 							projectile.active = false;
 							continue;
 						}
 						
-						// 检查子弹与幽灵的碰撞
+						// 检查Opportunity glow与幽灵的碰撞
 						items.forEach(function(item) {
 							if(item.type == 2 && item.status == 1) { // 只检查正常状态的幽灵
 								var dx = projectile.x - item.x;
@@ -1457,7 +1457,7 @@
 									item.status = 1;
 									item.timeout = Math.floor(Math.random() * 120);
 									
-									// 销毁子弹
+									// 销毁Opportunity glow
 									projectile.active = false;
 								}
 							}
@@ -1496,13 +1496,13 @@
 						context.restore();
 					}
 					
-					// 绘制炸弹
+					// 绘制Give it a shot
 					_BOMBS.forEach(function(bomb) {
 						if(!bomb.active) return;
 						
 						context.save();
 						
-						// 绘制炸弹图像
+						// 绘制Give it a shot图像
 						var bombImg = bombImages[bomb.character];
 						if(bombImg && bombImg.complete) {
 							var bombSize = 40;
@@ -1510,7 +1510,7 @@
 							context.imageSmoothingQuality = 'high';
 							context.drawImage(bombImg, bomb.x - bombSize/2, bomb.y - bombSize/2, bombSize, bombSize);
 						} else {
-							// 如果图像未加载，绘制一个圆形炸弹
+							// 如果图像未加载，绘制一个圆形Give it a shot
 							context.fillStyle = '#FF0000';
 							context.beginPath();
 							context.arc(bomb.x, bomb.y, 20, 0, 2 * Math.PI);
@@ -1523,7 +1523,7 @@
 						context.restore();
 					});
 					
-					// 绘制子弹和星星效果
+					// 绘制Opportunity glow和星星效果
 					_PROJECTILES.forEach(function(projectile) {
 						if(!projectile.active) return;
 						
@@ -1566,9 +1566,9 @@
 							context.fill();
 							context.stroke();
 						} else {
-							// 绘制子弹 - 使用Symbol.svg
-							// Dibujar el Symbol como proyectil (mucho más grande)
-							var logoSize = projectile.width * 5; // Hacer el proyectil 5 veces más grande
+							// 绘制Opportunity glow - 使用Symbol.svg
+							// Dibujar el Symbol como Opportunity glow (mucho más grande)
+							var logoSize = projectile.width * 5; // Hacer el Opportunity glow 5 veces más grande
 							context.drawImage(symbolImg, projectile.x - logoSize/2, projectile.y - logoSize/2, logoSize, logoSize);
 						}
 						
@@ -1621,7 +1621,7 @@
 						var now = Date.now();
 						if(now - _LAST_SHOT > 300) { // 300ms冷却时间
 							_LAST_SHOT = now;
-							// 创建子弹
+							// 创建Opportunity glow
 							var projectile = {
 								x: player.x,
 								y: player.y,
@@ -1629,19 +1629,19 @@
 								speed: 4,
 								width: 12,
 								height: 12,
-								life: 120, // 子弹存在时间
+								life: 120, // Opportunity glow存在时间
 								active: true
 							};
 							_PROJECTILES.push(projectile);
 						}
 					break;
-					case 66: //B键 - 炸弹 (solo para Product y Sales)
+					case 66: //B键 - Give it a shot (solo para Product y Sales)
 						var character = window.selectedCharacter || 'product';
 						if(character === 'product' || character === 'sales') {
 							var now = Date.now();
-							if(now - _LAST_BOMB > _BOMB_COOLDOWN && _BOMBS_AVAILABLE > 0) { // 2秒冷却时间 y bombas disponibles
+							if(now - _LAST_BOMB > _BOMB_COOLDOWN && _BOMBS_AVAILABLE > 0) { // 2秒冷却时间 y Give it a shot disponibles
 								_LAST_BOMB = now;
-								// 创建炸弹
+								// 创建Give it a shot
 								createBomb(player.x, player.y, character);
 							}
 						}
@@ -1747,11 +1747,11 @@
 				_LOGOS_ROBADOS = 0;
 				_CONTADORES_ROBADOS = 0;
 				_LAST_AUTO_ROB = 0;
-				_PROJECTILES = []; // 清空所有子弹
+				_PROJECTILES = []; // 清空所有Opportunity glow
 				_FLOATING_TEXTS = []; // 清空所有文本浮动效果
-				_BOMBS = []; // 清空所有炸弹
-				_LAST_BOMB = 0; // 重置炸弹冷却
-				_BOMBS_AVAILABLE = 3; // 重置炸弹数量
+				_BOMBS = []; // 清空所有Give it a shot
+				_LAST_BOMB = 0; // 重置Give it a shot冷却
+				_BOMBS_AVAILABLE = 3; // 重置Give it a shot数量
 				game.setStage(1);
 				break;
 			}
